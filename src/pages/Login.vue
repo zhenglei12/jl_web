@@ -2,7 +2,7 @@
   <div class="wraper">
     <div class="login-card" @keydown.enter="login">
       <a-form-model ref="form" class="login-form" :model="form" :rules="rules">
-        <h1 class="title">灵感引擎管理系统</h1>
+        <h1 class="title">渐鹿文化管理系统</h1>
         <a-form-model-item prop="username">
           <a-input v-model="form.username" placeholder="用户名" allow-clear>
             <a-icon slot="prefix" type="user" class="login-form-icon" />
@@ -19,7 +19,7 @@
       </a-form-model>
     </div>
     <div class="code">
-      <a href="https://beian.miit.gov.cn/" target="_blank">鄂ICP备2023015187号-1</a>
+      <a href="https://beian.miit.gov.cn/" target="_blank">鄂ICP备2024078917号</a>
     </div>
   </div>
 </template>
