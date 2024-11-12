@@ -8,8 +8,7 @@ Vue.use(Router);
 
 const originalPush = Router.prototype.push;
 Router.prototype.push = function push(location, onResolve, onReject) {
-  if (onResolve || onReject)
-    return originalPush.call(this, location, onResolve, onReject);
+  if (onResolve || onReject) return originalPush.call(this, location, onResolve, onReject);
   return originalPush.call(this, location).catch((err) => err);
 };
 
@@ -43,6 +42,15 @@ const routes = [
         meta: {
           group: "user",
           acl: "role-list",
+        },
+      },
+      {
+        path: "department",
+        name: "department",
+        component: () => import("./pages/department/List"),
+        meta: {
+          group: "user",
+          acl: "department-list",
         },
       },
       {

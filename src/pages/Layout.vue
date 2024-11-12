@@ -12,31 +12,17 @@
         :defaultSelectedKeys="[$route.name]"
         @openChange="openChange"
       >
-        <a-sub-menu
-          v-acl:one="['user-list', 'role-list', 'permission-list']"
-          key="user"
-        >
+        <a-sub-menu v-acl:one="['user-list', 'role-list', 'permission-list']" key="user">
           <span slot="title"><a-icon type="user" /><span>用户管理</span></span>
-          <a-menu-item v-acl="'user-list'" key="person" @click="goto('/person')"
-            >用户列表</a-menu-item
-          >
-          <a-menu-item v-acl="'role-list'" key="role" @click="goto('/role')"
-            >角色列表</a-menu-item
-          >
+          <a-menu-item v-acl="'user-list'" key="person" @click="goto('/person')">用户列表</a-menu-item>
+          <a-menu-item v-acl="'role-list'" key="role" @click="goto('/role')">角色列表</a-menu-item>
+          <a-menu-item v-acl="'department-list'" key="department" @click="goto('/department')">部门列表</a-menu-item>
         </a-sub-menu>
-        <a-menu-item
-          v-acl="'order-list'"
-          key="task-order"
-          @click="goto('/order')"
-        >
+        <a-menu-item v-acl="'order-list'" key="task-order" @click="goto('/order')">
           <a-icon type="dollar" />
           <span>订单列表</span>
         </a-menu-item>
-        <a-menu-item
-          v-acl="'classify-list'"
-          key="classify"
-          @click="goto('/classify')"
-        >
+        <a-menu-item v-acl="'classify-list'" key="classify" @click="goto('/classify')">
           <a-icon type="hdd" />
           <span>文档库</span>
         </a-menu-item>
@@ -53,36 +39,20 @@
             <a-icon type="area-chart" />
             <span>报表管理</span>
           </span>
-          <a-menu-item
-            v-acl="'edit-statistics.all.list'"
-            key="statistic-all"
-            @click="goto('/statistic/all')"
+          <a-menu-item v-acl="'edit-statistics.all.list'" key="statistic-all" @click="goto('/statistic/all')"
             >总览</a-menu-item
           >
-          <a-menu-item
-            v-acl="'edit-statistics.day.list'"
-            key="statistic-day"
-            @click="goto('/statistic/day')"
+          <a-menu-item v-acl="'edit-statistics.day.list'" key="statistic-day" @click="goto('/statistic/day')"
             >日统计</a-menu-item
           >
-          <a-menu-item
-            v-acl="'staff-statistics.list'"
-            key="statistic-user"
-            @click="goto('/statistic/user')"
+          <a-menu-item v-acl="'staff-statistics.list'" key="statistic-user" @click="goto('/statistic/user')"
             >员工统计</a-menu-item
           >
-          <a-menu-item
-            v-acl="'edit-statistics.order.list'"
-            key="statistic-order"
-            @click="goto('/editorder')"
+          <a-menu-item v-acl="'edit-statistics.order.list'" key="statistic-order" @click="goto('/editorder')"
             >编辑订单列表</a-menu-item
           >
         </a-sub-menu>
-        <a-menu-item
-          v-acl="'manuscript_bank-list'"
-          key="manuscript"
-          @click="goto('/manuscript')"
-        >
+        <a-menu-item v-acl="'manuscript_bank-list'" key="manuscript" @click="goto('/manuscript')">
           <a-icon type="book" />
           <span>稿件库</span>
         </a-menu-item>

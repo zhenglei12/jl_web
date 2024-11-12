@@ -153,7 +153,7 @@ const condition = [
   {
     key: "task_type",
     type: "select",
-    options: Utils.mapToArray(taskTypeMap),
+    options: utils.mapToArray(taskTypeMap),
     placeholder: "任务类型",
   },
   {
@@ -184,7 +184,7 @@ const condition = [
   {
     key: "status",
     type: "select",
-    options: Utils.mapToArray(orderStatusMap),
+    options: utils.mapToArray(orderStatusMap),
     placeholder: "状态",
   },
   {
@@ -195,6 +195,12 @@ const condition = [
     key: "_time",
     type: "date-in",
     placeholder: ["开始截止时间", "结束截止时间"],
+  },
+  {
+    key: "is_final",
+    type: "select",
+    placeholder: "尾款是否完成",
+    options: utils.mapToArray(boolMap),
   },
 ];
 
@@ -324,7 +330,7 @@ const columns = [
 import listMixin from "../../mixins/list";
 import OrderApi from "../../apis/order";
 import PublicApi from "../../apis/public";
-import Utils from "../../libs/utils";
+import utils from "../../libs/utils";
 import CusEdit from "./Edit";
 import CusStatus from "./Status";
 import CusAllot from "./Allot";
@@ -332,7 +338,7 @@ import CusUpload from "./Upload";
 import CusLog from "./Log";
 import CusAfter from "./After";
 import CusGrade from "./Grade";
-import { taskTypeMap, orderStatusMap } from "./mapping";
+import { taskTypeMap, orderStatusMap, boolMap } from "./mapping";
 
 export default {
   components: {
@@ -473,7 +479,8 @@ export default {
         return this.$message.warn("正在下载...");
       }
       this.download = true;
-      Utils.download(e, e.split("/").pop())
+      utils
+        .download(e, e.split("/").pop())
         .then(() => {
           this.$message.success("下载完成");
         })
@@ -574,7 +581,7 @@ export default {
           }
           return;
         }
-        Utils.export(res, "订单列表").then(() => {
+        utils.export(res, "订单列表").then(() => {
           this.$message.success("下载完成");
         });
       });

@@ -6,4 +6,5 @@ export default {
       alias,
     }),
   documentClassify: (params) => http.post("api/public/classify/list", params),
+  departmentAll: () => http.post("api/public/department/list"),
 };
