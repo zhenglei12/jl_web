@@ -24,7 +24,7 @@
       <a-row>
         <a-col span="12">
           <a-form-model-item label="订单总额">
-            <a-input-number v-model="form.amount" :min="0" />
+            <a-input-number v-model="form.amount" :min="0" :disabled="isEdit && $auth.isService" />
           </a-form-model-item>
         </a-col>
         <a-col span="12">

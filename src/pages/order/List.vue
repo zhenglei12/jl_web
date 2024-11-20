@@ -33,6 +33,11 @@
       rowKey="id"
       @change="listChange"
     >
+      <template slot="ovhidden" slot-scope="data">
+        <a-tooltip :title="data">
+          <div class="ov-hidden">{{ data }}</div>
+        </a-tooltip>
+      </template>
       <template slot="type" slot-scope="data">
         {{ taskTypeMap[data] }}
       </template>
@@ -212,11 +217,14 @@ const columns = [
   {
     title: "任务类型",
     dataIndex: "task_type",
+    width: 100,
     scopedSlots: { customRender: "type" },
   },
   {
     title: "题目",
     dataIndex: "subject",
+    width: 100,
+    scopedSlots: { customRender: "ovhidden" },
   },
   {
     title: "字数",
@@ -225,6 +233,8 @@ const columns = [
   {
     title: "任务要求",
     dataIndex: "task_ask",
+    width: 100,
+    scopedSlots: { customRender: "ovhidden" },
   },
   {
     title: "客户",
@@ -608,6 +618,14 @@ export default {
   max-width: 90px;
   max-height: 90px;
   cursor: pointer;
+}
+
+.ov-hidden {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /deep/ .bg {
