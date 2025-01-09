@@ -238,6 +238,7 @@ const columns = [
   },
   {
     title: "客户",
+    hidden: ["edit", "edit_admin"],
     scopedSlots: { customRender: "user" },
   },
   // {
