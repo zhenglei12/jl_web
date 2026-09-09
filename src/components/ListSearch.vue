@@ -1,5 +1,5 @@
 <template>
-  <a-form-model layout="inline" :model="form">
+  <a-form-model class="list-search" layout="inline" :model="form">
     <a-form-model-item
       v-for="(item, index) in condition"
       :key="index"
@@ -62,7 +62,12 @@
       />
     </a-form-model-item>
     <a-form-model-item>
-      <a-button type="primary" @click="submit">搜索</a-button>
+      <a-button type="primary" @click="submit">
+        <a-icon type="search" />查询
+      </a-button>
+      <a-button v-if="showReset" class="search-reset" @click="reset">
+        <a-icon type="reload" />重置
+      </a-button>
     </a-form-model-item>
   </a-form-model>
 </template>
@@ -80,6 +85,7 @@ export default {
       required: true,
     },
     collection: Object,
+    showReset: Boolean,
   },
   data() {
     return {
@@ -117,14 +123,32 @@ export default {
         this.collection.refresh();
       }
     },
+    reset() {
+      if (this.timer) {
+        clearTimeout(this.timer);
+      }
+      this.form = {};
+      this.$emit("change", this.form);
+      if (this.collection) {
+        this.collection.refresh();
+      }
+    },
   },
 };
 </script>
 
 <style lang="less" scoped>
+.list-search {
+  width: 100%;
+}
+
+.search-reset {
+  margin-left: 10px;
+}
+
 .searchheader {
   &-select {
-    min-width: 120px;
+    min-width: 138px;
   }
 }
 </style>

@@ -8,13 +8,27 @@
       ></list-search>
     </div>
     <div class="cus-table-header">
-      <div class="statistic">
-        <span>
-          <span>总金额：{{ amountCount }}</span>
-          <span>已回收金额：{{ receivedAmountCount }}</span>
-          <span>总尾款金额：{{ receiptAmountCount }}</span>
-          <span>总售后金额：{{ afterAmountCount }}</span>
-        </span>
+      <div class="metric-grid staff-metrics">
+        <div class="metric-card">
+          <span class="metric-card__icon"><a-icon type="account-book" /></span>
+          <span class="metric-card__label">总金额</span>
+          <strong class="metric-card__value">{{ amountCount }}</strong>
+        </div>
+        <div class="metric-card metric-card--green">
+          <span class="metric-card__icon"><a-icon type="check-circle" /></span>
+          <span class="metric-card__label">已回收金额</span>
+          <strong class="metric-card__value">{{ receivedAmountCount }}</strong>
+        </div>
+        <div class="metric-card metric-card--orange">
+          <span class="metric-card__icon"><a-icon type="wallet" /></span>
+          <span class="metric-card__label">总尾款金额</span>
+          <strong class="metric-card__value">{{ receiptAmountCount }}</strong>
+        </div>
+        <div class="metric-card metric-card--purple">
+          <span class="metric-card__icon"><a-icon type="tool" /></span>
+          <span class="metric-card__label">总售后金额</span>
+          <strong class="metric-card__value">{{ afterAmountCount }}</strong>
+        </div>
       </div>
       <a-button
         v-acl="'staff-statistics.export'"
@@ -187,16 +201,7 @@ export default {
 </script>
 
 <style lang="less" scoped>
-.statistic {
-  font-size: 20px;
-  color: red;
-
-  span {
-    margin-left: 20px;
-
-    &:first-of-type {
-      margin: 0;
-    }
-  }
+.staff-metrics {
+  grid-template-columns: repeat(4, minmax(170px, 1fr));
 }
 </style>

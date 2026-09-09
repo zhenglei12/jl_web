@@ -1,25 +1,50 @@
 <template>
   <div>
     <div class="cus-table-header">
-      <list-search v-model="search" :condition="condition" :collection="collection"></list-search>
+      <list-search v-model="search" :condition="condition" :collection="collection" show-reset></list-search>
     </div>
     <div class="cus-table-header">
-      <div class="statistic">
-        <span v-if="statistic" v-acl="'order-statistics'">
-          <span>总金额：{{ statistic.amount_count }}</span>
-          <span>已回收金额：{{ statistic.received_amount_count }}</span>
-          <span>本月总金额：{{ statistic.month_amount_count }}</span>
-          <span>已回收金额：{{ statistic.month_received_amount_count }}</span>
-        </span>
-        <span v-if="numbers" v-acl="'order-count.num'">文字统计：{{ numbers }}</span>
+      <div class="metric-grid">
+        <div v-if="statistic" v-acl="'order-statistics'" class="metric-card">
+          <span class="metric-card__icon"><a-icon type="account-book" /></span>
+          <span class="metric-card__label">总金额</span>
+          <strong class="metric-card__value">{{ statistic.amount_count }}</strong>
+        </div>
+        <div v-if="statistic" v-acl="'order-statistics'" class="metric-card metric-card--green">
+          <span class="metric-card__icon"><a-icon type="check-circle" /></span>
+          <span class="metric-card__label">已回收金额</span>
+          <strong class="metric-card__value">{{ statistic.received_amount_count }}</strong>
+        </div>
+        <div v-if="statistic" v-acl="'order-statistics'" class="metric-card metric-card--orange">
+          <span class="metric-card__icon"><a-icon type="pay-circle" /></span>
+          <span class="metric-card__label">本月总金额</span>
+          <strong class="metric-card__value">{{ statistic.month_amount_count }}</strong>
+        </div>
+        <div v-if="statistic" v-acl="'order-statistics'" class="metric-card metric-card--purple">
+          <span class="metric-card__icon"><a-icon type="wallet" /></span>
+          <span class="metric-card__label">本月已回收</span>
+          <strong class="metric-card__value">{{ statistic.month_received_amount_count }}</strong>
+        </div>
+        <div v-if="numbers" v-acl="'order-count.num'" class="metric-card metric-card--cyan">
+          <span class="metric-card__icon"><a-icon type="file-text" /></span>
+          <span class="metric-card__label">文字统计</span>
+          <strong class="metric-card__value">{{ numbers }}</strong>
+        </div>
       </div>
-      <a-button-group>
-        <a-button v-acl="'order-export'" @click="toExport()">导出</a-button>
-        <a-button v-acl="'order-add'" type="primary" @click="toEdit()">新增</a-button>
-      </a-button-group>
+      <div class="order-toolbar">
+        <a-button class="column-toggle" @click="showAllColumns = !showAllColumns">
+          <a-icon :type="showAllColumns ? 'up' : 'down'" />
+          {{ showAllColumns ? "收起字段" : "展开字段" }}
+        </a-button>
+        <a-button-group>
+          <a-button v-acl="'order-export'" @click="toExport()">导出</a-button>
+          <a-button v-acl="'order-add'" type="primary" @click="toEdit()">新增</a-button>
+        </a-button-group>
+      </div>
     </div>
     <a-table
-      :columns="columns"
+      class="order-table"
+      :columns="tableColumns"
       :data-source="collection.list"
       :loading="collection.loading"
       :pagination="{
@@ -29,6 +54,7 @@
         showSizeChanger: true,
       }"
       :rowClassName="getRowClass"
+      :scroll="{ x: showAllColumns ? 2850 : 1470 }"
       bordered
       rowKey="id"
       @change="listChange"
@@ -39,12 +65,20 @@
         </a-tooltip>
       </template>
       <template slot="type" slot-scope="data">
-        {{ taskTypeMap[data] }}
+        <a-tag :class="['order-tag', getTaskTypeClass(data)]">
+          {{ taskTypeMap[data] || "未知类型" }}
+        </a-tag>
       </template>
       <template slot="user" slot-scope="data">
-        <p>名称：{{ data.name }}</p>
-        <!-- <p>电话：{{ data.phone }}</p> -->
-        <p>销售账号：{{ data.want_name }}</p>
+        <div class="order-customer">
+          <a-tooltip :title="`名称：${data.name || '—'}`">
+            <p class="order-customer__line">名称：{{ data.name || "—" }}</p>
+          </a-tooltip>
+          <!-- <p>电话：{{ data.phone }}</p> -->
+          <a-tooltip :title="`销售账号：${data.want_name || '—'}`">
+            <p class="order-customer__line">销售账号：{{ data.want_name || "—" }}</p>
+          </a-tooltip>
+        </div>
       </template>
       <template slot="money" slot-scope="data">
         {{ data.amount - data.received_amount > 0 ? data.amount - data.received_amount : "已结清" }}
@@ -60,47 +94,50 @@
         <span v-else>无附件</span>
       </template>
       <template slot="status" slot-scope="data">
-        {{ orderStatusMap[data] }}
+        <a-tag :class="['order-tag', getStatusClass(data)]">
+          <i class="order-tag__dot"></i>{{ orderStatusMap[data] || "未知状态" }}
+        </a-tag>
       </template>
       <template slot="file" slot-scope="data">
         <a v-if="data" @click="toDownload(data)">下载稿件</a>
         <span v-else>未提交</span>
       </template>
       <template slot="operate" slot-scope="data">
-        <div class="cus-nowrap">
+        <div class="cus-nowrap order-actions" @click.stop>
           <span v-acl="'order-update'">
             <a-icon type="edit" title="编辑" @click="toEdit(data)" />
-            <a-divider type="vertical"></a-divider>
           </span>
           <span v-acl="'order-edit.name'">
             <a-icon type="api" title="分配编辑" @click="toAllot(data.id)" />
-            <a-divider type="vertical"></a-divider>
           </span>
           <span v-acl="'order-manuscript'">
             <a-icon type="upload" title="上传稿件" @click="toUpload(data.id)" />
-            <a-divider type="vertical"></a-divider>
           </span>
-          <span v-acl="'order-logs'">
-            <a-icon type="file" title="日志" @click="toLog(data.id)" />
-            <a-divider type="vertical"></a-divider>
-          </span>
-          <span v-acl="'order-delete'" class="cus-pointer">
-            <a-popconfirm title="确认删除？" @confirm="toDelete(data.id)">
-              <a-icon type="delete" title="删除" />
-            </a-popconfirm>
-            <a-divider type="vertical"></a-divider>
-          </span>
-          <span v-acl="'order-status'">
-            <a-icon type="swap" title="修改状态" @click="toStatus(data)" />
-            <a-divider type="vertical"></a-divider>
-          </span>
-          <span v-acl="'order-after'">
-            <a-icon type="rocket" title="售后" @click="toAfter(data)" />
-            <a-divider type="vertical"></a-divider>
-          </span>
-          <span v-acl="'order-hard.grade'">
-            <a-icon type="stock" title="难度" @click="toGrade(data)" />
-          </span>
+          <a-dropdown :trigger="['click']" placement="bottomRight">
+            <a-button class="action-more" title="更多操作" @click.stop>
+              <a-icon type="ellipsis" />
+            </a-button>
+            <a-menu slot="overlay" class="order-action-menu">
+              <a-menu-item v-acl="'order-logs'" @click="toLog(data.id)">
+                <a-icon type="file" />订单日志
+              </a-menu-item>
+              <a-menu-item v-acl="'order-status'" @click="toStatus(data)">
+                <a-icon type="swap" />修改状态
+              </a-menu-item>
+              <a-menu-item v-acl="'order-after'" @click="toAfter(data)">
+                <a-icon type="rocket" />售后处理
+              </a-menu-item>
+              <a-menu-item v-acl="'order-hard.grade'" @click="toGrade(data)">
+                <a-icon type="stock" />设置难度
+              </a-menu-item>
+              <a-menu-divider v-acl="'order-delete'" />
+              <a-menu-item v-acl="'order-delete'" class="danger-menu-item">
+                <a-popconfirm title="确认删除？" placement="left" @confirm="toDelete(data.id)">
+                  <span class="menu-action"><a-icon type="delete" />删除订单</span>
+                </a-popconfirm>
+              </a-menu-item>
+            </a-menu>
+          </a-dropdown>
         </div>
       </template>
     </a-table>
@@ -213,6 +250,7 @@ const columns = [
   {
     title: "ID",
     dataIndex: "id",
+    width: 70,
   },
   {
     title: "任务类型",
@@ -223,22 +261,25 @@ const columns = [
   {
     title: "题目",
     dataIndex: "subject",
-    width: 100,
+    width: 180,
     scopedSlots: { customRender: "ovhidden" },
   },
   {
     title: "字数",
     dataIndex: "word_number",
+    width: 80,
   },
   {
     title: "任务要求",
     dataIndex: "task_ask",
-    width: 100,
+    width: 180,
+    optional: true,
     scopedSlots: { customRender: "ovhidden" },
   },
   {
     title: "客户",
     hidden: ["edit", "edit_admin"],
+    width: 160,
     scopedSlots: { customRender: "user" },
   },
   // {
@@ -249,91 +290,119 @@ const columns = [
   {
     title: "创建时间",
     dataIndex: "created_at",
+    width: 160,
   },
   {
     title: "截止时间",
     dataIndex: "submission_time",
+    width: 110,
   },
   {
     title: "订单总额",
     hidden: ["edit", "edit_admin"],
     dataIndex: "amount",
+    width: 110,
   },
   {
     title: "已收金额",
     hidden: ["edit", "edit_admin"],
     dataIndex: "received_amount",
+    width: 110,
   },
   {
     title: "未收尾款",
     hidden: ["edit", "edit_admin"],
+    width: 110,
+    optional: true,
     scopedSlots: { customRender: "money" },
   },
   {
     title: "付款截图",
     hidden: ["edit", "edit_admin"],
     dataIndex: "pay_img",
+    width: 100,
+    optional: true,
     scopedSlots: { customRender: "image" },
   },
-  // {
-  //   title: "尾款金额",
-  //   hidden: ["edit", "edit_admin"],
-  //   dataIndex: "receipt_time",
-  // },
   {
     title: "尾款截图",
     hidden: ["edit", "edit_admin"],
     dataIndex: "receipt_account",
+    width: 100,
+    optional: true,
     scopedSlots: { customRender: "wk_image" },
   },
   {
     title: "财务审核",
     hidden: ["edit", "edit_admin"],
     dataIndex: "finance_check",
+    width: 100,
+    optional: true,
     customRender: (data) => (data == 1 ? "是" : "否"),
   },
   {
     title: "售后金额",
     hidden: ["edit", "edit_admin"],
     dataIndex: "after_banlace",
+    width: 100,
+    optional: true,
   },
   {
     title: "详细要求",
     dataIndex: "detail_re",
+    width: 110,
+    optional: true,
     scopedSlots: { customRender: "ask" },
   },
   {
     title: "状态",
     dataIndex: "status",
+    width: 110,
     scopedSlots: { customRender: "status" },
   },
   {
     title: "创建客服",
     dataIndex: "staff_name",
+    width: 100,
+    optional: true,
   },
   {
     title: "文档分类",
     dataIndex: "classify.name",
+    width: 110,
+    optional: true,
   },
   {
     title: "责任编辑",
     dataIndex: "edit_name",
+    width: 100,
   },
   {
     title: "难度等级",
     dataIndex: "hard_grade",
+    width: 100,
+    optional: true,
   },
   {
     title: "备注",
     dataIndex: "remark",
+    width: 160,
+    optional: true,
+    scopedSlots: { customRender: "ovhidden" },
   },
   {
     title: "稿件下载",
     dataIndex: "manuscript",
+    width: 110,
+    optional: true,
     scopedSlots: { customRender: "file" },
   },
   {
     title: "操作",
+    key: "operate",
+    align: "center",
+    fixed: "right",
+    width: 180,
     scopedSlots: { customRender: "operate" },
   },
 ];
@@ -382,7 +451,13 @@ export default {
       editorList: [],
       classifyList: [],
       download: false,
+      showAllColumns: false,
     };
+  },
+  computed: {
+    tableColumns() {
+      return this.showAllColumns ? this.columns : this.columns.filter((column) => !column.optional);
+    },
   },
   created() {
     PublicApi.roleUserList("staff").then((res) => {
@@ -442,6 +517,20 @@ export default {
     }
   },
   methods: {
+    getTaskTypeClass(value) {
+      return `order-tag--type-${value}`;
+    },
+    getStatusClass(value) {
+      const classMap = {
+        "-1": "order-tag--waiting",
+        1: "order-tag--writing",
+        2: "order-tag--revision",
+        3: "order-tag--completed",
+        4: "order-tag--submitted",
+        5: "order-tag--delivered",
+      };
+      return classMap[value] || "order-tag--default";
+    },
     getStatistic() {
       OrderApi.statistic().then((res) => {
         this.statistic = res;
@@ -602,26 +691,30 @@ export default {
 </script>
 
 <style lang="less" scoped>
-.statistic {
-  font-size: 20px;
-  color: red;
+.image {
+  width: 48px;
+  height: 48px;
+  padding: 3px;
+  border: 1px solid #e1eaf5;
+  border-radius: 7px;
+  object-fit: cover;
+  cursor: pointer;
+  transition: all 0.2s ease;
 
-  span {
-    margin-left: 20px;
+  &:hover {
+    border-color: #76a8f5;
+    box-shadow: 0 6px 15px rgba(48, 102, 173, 0.14);
+    transform: scale(1.04);
+  }
 
-    &:first-of-type {
-      margin: 0;
-    }
+  &--small {
+    width: 38px;
+    height: 38px;
   }
 }
 
-.image {
-  max-width: 90px;
-  max-height: 90px;
-  cursor: pointer;
-}
-
 .ov-hidden {
+  width: 160px;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -629,29 +722,242 @@ export default {
   text-overflow: ellipsis;
 }
 
+.order-customer {
+  width: 100%;
+  max-width: 128px;
+  min-width: 0;
+  overflow: hidden;
+
+  &__line {
+    display: block;
+    width: 100%;
+    margin: 0;
+    overflow: hidden;
+    line-height: 1.8;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+}
+
+.order-actions {
+  justify-content: center;
+  gap: 5px;
+
+  .action-more {
+    display: inline-flex;
+    width: 30px;
+    height: 28px;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border-color: #dce8f7;
+    color: #2f7cf6;
+    background: #f4f8ff;
+
+    &:hover,
+    &:focus {
+      border-color: #2f7cf6;
+      color: #fff;
+      background: #2f7cf6;
+    }
+  }
+}
+
+.order-toolbar {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 10px;
+}
+
+.column-toggle {
+  color: #2f7cf6;
+  border-color: #cfe0f6;
+  background: #f7faff;
+}
+
+.order-tag {
+  margin: 0;
+  min-width: 58px;
+  padding: 3px 11px;
+  border: 1px solid transparent;
+  border-radius: 14px;
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 20px;
+  text-align: center;
+  box-shadow: 0 3px 8px rgba(42, 83, 135, 0.08);
+
+  &__dot {
+    display: inline-block;
+    width: 5px;
+    height: 5px;
+    margin: 0 6px 1px 0;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  &--type-1 {
+    color: #176ee5;
+    border-color: #c5dcff;
+    background: #deecff;
+  }
+
+  &--type-2 {
+    color: #6846d8;
+    border-color: #d9ccff;
+    background: #ebe5ff;
+  }
+
+  &--type-3 {
+    color: #d8670b;
+    border-color: #ffd3ad;
+    background: #ffead7;
+  }
+
+  &--type-4 {
+    color: #07866f;
+    border-color: #b8ecdf;
+    background: #d9f7ef;
+  }
+
+  &--type-5 {
+    color: #087da9;
+    border-color: #bee7f7;
+    background: #daf3fc;
+  }
+
+  &--waiting {
+    color: #66768c;
+    border-color: #d5dde8;
+    background: #e9eef4;
+  }
+
+  &--writing {
+    color: #176ee5;
+    border-color: #c5dcff;
+    background: #deecff;
+  }
+
+  &--revision {
+    color: #e34b3f;
+    border-color: #ffc9c5;
+    background: #ffe4e2;
+  }
+
+  &--completed {
+    color: #078a6e;
+    border-color: #b6ecdd;
+    background: #d8f7ed;
+  }
+
+  &--submitted {
+    color: #6342d5;
+    border-color: #d7caff;
+    background: #e9e2ff;
+  }
+
+  &--delivered {
+    color: #bd7000;
+    border-color: #ffdaa1;
+    background: #ffedcf;
+  }
+
+  &--default {
+    color: #71829a;
+    background: #f0f3f7;
+  }
+}
+
+.order-expanded {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(150px, 1fr));
+  gap: 1px;
+  overflow: hidden;
+  border: 1px solid #e1eaf5;
+  border-radius: 9px;
+  background: #e1eaf5;
+
+  .expanded-item {
+    display: flex;
+    min-height: 64px;
+    flex-direction: column;
+    justify-content: center;
+    padding: 10px 14px;
+    background: #fbfdff;
+
+    &--wide {
+      grid-column: span 2;
+    }
+  }
+
+  .expanded-label {
+    margin-bottom: 5px;
+    color: #8b9ab0;
+    font-size: 11px;
+  }
+
+  .expanded-value {
+    color: #405574;
+    line-height: 1.6;
+    white-space: normal;
+    word-break: break-word;
+  }
+}
+
+/deep/ .ant-table-expanded-row > td {
+  padding: 12px 16px !important;
+  background: #f5f9fe !important;
+}
+
+/deep/ .ant-table-row-expand-icon {
+  border-color: #bdd0e8;
+  color: #2f7cf6;
+  background: #f2f7ff;
+}
+
+/deep/ .ant-table-fixed-right {
+  box-shadow: -8px 0 18px rgba(32, 69, 113, 0.08);
+}
+
+/deep/ .ant-table-fixed-right .ant-table-thead > tr > th,
+/deep/ .ant-table-fixed-right .ant-table-tbody > tr > td {
+  background: #fff;
+}
+
+/deep/ .ant-table-fixed-right .ant-table-thead > tr > th {
+  background: #f7faff;
+}
+
+@media (max-width: 1100px) {
+  .order-expanded {
+    grid-template-columns: repeat(2, minmax(140px, 1fr));
+  }
+}
+
 /deep/ .bg {
   &-pink {
-    background-color: #fbe5e2;
+    background-color: #fff4f4;
   }
 
   &-green {
-    background-color: #75f98d;
+    background-color: #f0fbf7;
   }
 
   &-yellow {
-    background-color: #fbfd87;
+    background-color: #fffaf0;
   }
 
   &-blue {
-    background-color: #a3ccfa;
+    background-color: #f2f7ff;
   }
 
   &-purple {
-    background-color: #c08dc0;
+    background-color: #f8f4ff;
   }
 }
 
 /deep/ tr:hover > td {
-  background-color: inherit !important;
+  filter: brightness(0.99);
 }
 </style>

@@ -1,18 +1,118 @@
-@table-border: 1px solid #dddddd;
+@table-border: 1px solid #e5edf6;
+
+.ant-table-wrapper {
+  padding: 10px 10px 2px;
+  border: 1px solid rgba(218, 229, 242, 0.95);
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 6px 22px rgba(32, 78, 130, 0.045);
+
+  .ant-table {
+    color: #536681;
+    font-size: 13px;
+  }
+
+  .ant-table-content,
+  .ant-table-body {
+    overflow-x: auto;
+  }
+
+  .ant-table table {
+    width: max-content;
+    min-width: 100%;
+  }
+
+  .ant-table-bordered .ant-table-body > table,
+  .ant-table-bordered .ant-table-fixed-left table,
+  .ant-table-bordered .ant-table-fixed-right table {
+    border-color: #e5edf6;
+    border-radius: 8px;
+  }
+
+  .ant-table-thead > tr > th {
+    padding: 13px 12px;
+    border-color: #e5edf6;
+    color: #334866;
+    background: #f7faff;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .ant-table-tbody > tr > td {
+    padding: 12px;
+    border-color: #e9eff6;
+    white-space: nowrap;
+    transition: background 0.18s ease;
+  }
+
+  .ant-table-tbody .ov-hidden {
+    width: 180px;
+    white-space: normal;
+  }
+
+  .ant-table-tbody > tr:hover:not(.ant-table-expanded-row) > td {
+    background: #f7fbff;
+  }
+
+  .ant-table-tbody td .anticon[title] {
+    display: inline-flex;
+    width: 28px;
+    height: 28px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 7px;
+    color: #2f7cf6;
+    background: #eef5ff;
+    cursor: pointer;
+    transition: all 0.18s ease;
+
+    &:hover {
+      color: #fff;
+      background: #2f7cf6;
+      box-shadow: 0 5px 12px rgba(47, 124, 246, 0.25);
+      transform: translateY(-1px);
+    }
+
+    &.anticon-delete:hover {
+      background: #f05a67;
+      box-shadow: 0 5px 12px rgba(240, 90, 103, 0.25);
+    }
+  }
+
+  .ant-table-tbody td .ant-divider-vertical {
+    height: 16px;
+    margin: 0 4px;
+    background: transparent;
+  }
+
+  .ant-table-placeholder {
+    border-color: #e5edf6;
+    color: #93a2b7;
+  }
+
+  .ant-empty-description {
+    color: #93a2b7;
+  }
+
+  p {
+    margin-bottom: 3px;
+  }
+}
 
 .cus-table:not(.no-border) {
-    width: 100%;
-    border-top: @table-border;
-    border-left: @table-border;
+  width: 100%;
+  border-top: @table-border;
+  border-left: @table-border;
 
-    th:not(.no-border),
-    td:not(.no-border) {
-        border-right: @table-border;
-        border-bottom: @table-border;
-    }
+  th:not(.no-border),
+  td:not(.no-border) {
+    border-right: @table-border;
+    border-bottom: @table-border;
+  }
 
-    th,
-    td {
-        padding: 10px 16px;
-    }
+  th,
+  td {
+    padding: 10px 16px;
+  }
 }

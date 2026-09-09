@@ -103,27 +103,36 @@ export default {
 
 <style lang="less" scoped>
 .group-container {
+  margin-bottom: 14px;
+  overflow: hidden;
+  border: 1px solid #e2eaf5;
+  border-radius: 9px;
+  background: #fff;
+
   .group-header {
-    background-color: #f0f2f5;
-    font-weight: bold;
-    padding: 4px 8px;
+    padding: 10px 13px;
     position: sticky;
     top: 0;
     z-index: 1;
+    color: #354b6d;
+    background: #f5f9ff;
+    font-weight: 600;
   }
 
   .group-items {
     display: flex;
     flex-wrap: wrap;
-    margin: 8px;
+    margin: 0;
+    padding: 10px 13px 12px;
 
     .item {
-      width: 120px;
+      width: 135px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
       vertical-align: sub;
-      margin: 4px 8px 4px 0;
+      margin: 5px 8px 5px 0;
+      color: #5d708d;
     }
   }
 }
