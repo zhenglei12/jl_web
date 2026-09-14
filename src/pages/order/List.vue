@@ -86,6 +86,9 @@
       <template slot="amount" slot-scope="data">
         {{ formatAmount(data) }}
       </template>
+      <template slot="createdTime" slot-scope="data">
+        {{ formatDateMinute(data) }}
+      </template>
       <template slot="image" slot-scope="data">
         <img v-if="data" :src="data" alt="图片" class="image" @click="toPreview(data)" />
       </template>
@@ -294,6 +297,7 @@ const columns = [
     title: "创建时间",
     dataIndex: "created_at",
     width: 160,
+    scopedSlots: { customRender: "createdTime" },
   },
   {
     title: "截止时间",
@@ -528,6 +532,9 @@ export default {
     formatAmount(value) {
       const amount = Number(value);
       return Number.isFinite(amount) ? amount.toFixed(2) : "0.00";
+    },
+    formatDateMinute(value) {
+      return value ? String(value).replace(/(\d{2}:\d{2}):\d{2}$/, "$1") : "—";
     },
     getStatusClass(value) {
       const classMap = {
