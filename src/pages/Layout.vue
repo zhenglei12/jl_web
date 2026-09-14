@@ -12,7 +12,7 @@
         <span class="logo-mark"><a-icon type="file-text" /></span>
         <span v-if="!collapsed" class="logo-copy">
           <strong>渐鹿管理系统</strong>
-          <small>JIANLU SYSTEM</small>
+          <small>DeerVison SYSTEM</small>
         </span>
       </div>
       <a-menu

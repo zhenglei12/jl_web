@@ -5,7 +5,7 @@
         <span class="brand-mark"><a-icon type="file-text" /></span>
         <span>
           <strong>渐鹿管理系统</strong>
-          <small>JIANLU MANAGEMENT</small>
+          <small>DeerVison MANAGEMENT</small>
         </span>
       </div>
       <div class="intro-copy">

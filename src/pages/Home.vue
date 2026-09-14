@@ -2,7 +2,7 @@
   <div class="home-page">
     <section class="welcome-card">
       <div class="welcome-copy">
-        <span class="eyebrow">WELCOME TO JIANLU</span>
+        <span class="eyebrow">WELCOME TO DeerVison</span>
         <h2>欢迎回来，{{ $auth.user().name }}</h2>
         <p>今天也要保持从容与高效，开始处理您的工作事项吧。</p>
         <div class="user-meta">

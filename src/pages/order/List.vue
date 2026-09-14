@@ -8,22 +8,22 @@
         <div v-if="statistic" v-acl="'order-statistics'" class="metric-card">
           <span class="metric-card__icon"><a-icon type="account-book" /></span>
           <span class="metric-card__label">总金额</span>
-          <strong class="metric-card__value">{{ statistic.amount_count }}</strong>
+          <strong class="metric-card__value">{{ formatAmount(statistic.amount_count) }}</strong>
         </div>
         <div v-if="statistic" v-acl="'order-statistics'" class="metric-card metric-card--green">
           <span class="metric-card__icon"><a-icon type="check-circle" /></span>
           <span class="metric-card__label">已回收金额</span>
-          <strong class="metric-card__value">{{ statistic.received_amount_count }}</strong>
+          <strong class="metric-card__value">{{ formatAmount(statistic.received_amount_count) }}</strong>
         </div>
         <div v-if="statistic" v-acl="'order-statistics'" class="metric-card metric-card--orange">
           <span class="metric-card__icon"><a-icon type="pay-circle" /></span>
           <span class="metric-card__label">本月总金额</span>
-          <strong class="metric-card__value">{{ statistic.month_amount_count }}</strong>
+          <strong class="metric-card__value">{{ formatAmount(statistic.month_amount_count) }}</strong>
         </div>
         <div v-if="statistic" v-acl="'order-statistics'" class="metric-card metric-card--purple">
           <span class="metric-card__icon"><a-icon type="wallet" /></span>
           <span class="metric-card__label">本月已回收</span>
-          <strong class="metric-card__value">{{ statistic.month_received_amount_count }}</strong>
+          <strong class="metric-card__value">{{ formatAmount(statistic.month_received_amount_count) }}</strong>
         </div>
         <div v-if="numbers" v-acl="'order-count.num'" class="metric-card metric-card--cyan">
           <span class="metric-card__icon"><a-icon type="file-text" /></span>
@@ -81,7 +81,10 @@
         </div>
       </template>
       <template slot="money" slot-scope="data">
-        {{ data.amount - data.received_amount > 0 ? data.amount - data.received_amount : "已结清" }}
+        {{ data.amount - data.received_amount > 0 ? formatAmount(data.amount - data.received_amount) : "已结清" }}
+      </template>
+      <template slot="amount" slot-scope="data">
+        {{ formatAmount(data) }}
       </template>
       <template slot="image" slot-scope="data">
         <img v-if="data" :src="data" alt="图片" class="image" @click="toPreview(data)" />
@@ -302,12 +305,14 @@ const columns = [
     hidden: ["edit", "edit_admin"],
     dataIndex: "amount",
     width: 110,
+    scopedSlots: { customRender: "amount" },
   },
   {
     title: "已收金额",
     hidden: ["edit", "edit_admin"],
     dataIndex: "received_amount",
     width: 110,
+    scopedSlots: { customRender: "amount" },
   },
   {
     title: "未收尾款",
@@ -519,6 +524,10 @@ export default {
   methods: {
     getTaskTypeClass(value) {
       return `order-tag--type-${value}`;
+    },
+    formatAmount(value) {
+      const amount = Number(value);
+      return Number.isFinite(amount) ? amount.toFixed(2) : "0.00";
     },
     getStatusClass(value) {
       const classMap = {
