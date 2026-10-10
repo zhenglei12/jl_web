@@ -25,10 +25,15 @@
           <span class="metric-card__label">本月已回收</span>
           <strong class="metric-card__value">{{ formatAmount(statistic.month_received_amount_count) }}</strong>
         </div>
-        <div v-if="numbers" v-acl="'order-count.num'" class="metric-card metric-card--cyan">
-          <span class="metric-card__icon"><a-icon type="file-text" /></span>
-          <span class="metric-card__label">文字统计</span>
-          <strong class="metric-card__value">{{ numbers }}</strong>
+        <div v-if="statistic" v-acl="'order-statistics'" class="metric-card metric-card--cyan">
+          <span class="metric-card__icon"><a-icon type="calendar" /></span>
+          <span class="metric-card__label">日总金额</span>
+          <strong class="metric-card__value">{{ formatAmount(statistic.day_amount_count) }}</strong>
+        </div>
+        <div v-if="statistic" v-acl="'order-statistics'" class="metric-card metric-card--green">
+          <span class="metric-card__icon"><a-icon type="fund" /></span>
+          <span class="metric-card__label">日回收金额</span>
+          <strong class="metric-card__value">{{ formatAmount(statistic.day_received_amount_count) }}</strong>
         </div>
       </div>
       <div class="order-toolbar">
@@ -447,7 +452,6 @@ export default {
       taskTypeMap,
       orderStatusMap,
       statistic: null,
-      numbers: null,
       editVisible: false,
       statusVisible: false,
       allotVisible: false,
@@ -547,12 +551,17 @@ export default {
       };
       return classMap[value] || "order-tag--default";
     },
-    getStatistic() {
-      OrderApi.statistic().then((res) => {
+    getStatistic(search = {}) {
+      const filters = search || {};
+      const params = {};
+      if (filters.staff_name) {
+        params.staff_name = filters.staff_name;
+      }
+      if (this.$auth.isService) {
+        params.staff_name = this.$auth.user().name;
+      }
+      OrderApi.statistic(params).then((res) => {
         this.statistic = res;
-      });
-      OrderApi.numbers().then((res) => {
-        this.numbers = res.count_num;
       });
     },
     getRowClass(data) {
@@ -625,8 +634,8 @@ export default {
       this.logVisible = true;
     },
     _getList() {
-      this.getStatistic();
       this.collection.loading = true;
+      const loadingStartedAt = Date.now();
       const _search = JSON.parse(JSON.stringify(this.search));
       if (_search && _search._date) {
         _search.created_at = _search._date[0];
@@ -639,6 +648,7 @@ export default {
       if (_search && _search.classify_id) {
         _search.classify_id = _search.classify_id.push();
       }
+      this.getStatistic(_search);
       OrderApi.list(
         Object.assign(
           {},
@@ -650,11 +660,24 @@ export default {
           },
           _search
         )
-      ).then((res) => {
-        this.collection.list = res.list;
-        this.collection.total = res.total;
-        this.collection.loading = false;
-      });
+      )
+        .then((res) => {
+          const render = () => {
+            this.collection.list = res.list;
+            this.collection.total = res.total;
+            this.collection.loading = false;
+          };
+          // 保证快速响应时也能看到明确的加载反馈
+          const remaining = 280 - (Date.now() - loadingStartedAt);
+          if (remaining > 0) {
+            setTimeout(render, remaining);
+          } else {
+            render();
+          }
+        })
+        .catch(() => {
+          this.collection.loading = false;
+        });
     },
     toExport() {
       const _search = JSON.parse(JSON.stringify(this.search));

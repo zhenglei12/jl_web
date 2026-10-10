@@ -14,6 +14,16 @@ Router.prototype.push = function push(location, onResolve, onReject) {
 
 const routes = [
   {
+    path: "/mobile/login",
+    name: "mobile-login",
+    component: () => import("./pages/mobile/Login"),
+  },
+  {
+    path: "/mobile/order-add",
+    name: "mobile-order-add",
+    component: () => import("./pages/mobile/OrderUpload"),
+  },
+  {
     path: "/",
     component: () => import("./pages/Layout"),
     children: [
@@ -135,7 +145,7 @@ const router = new Router({
 
 router.beforeEach((to, _from, next) => {
   document.title = (to.meta && to.meta.title) || "论文系统";
-  if (to.name != "login") {
+  if (to.name != "login" && to.name != "mobile-login") {
     Promise.all([Auth.check(), Acl.check()])
       .then(() => {
         if (to.meta && to.meta.acl && !Acl.verify(to.meta.acl)) {
@@ -148,7 +158,8 @@ router.beforeEach((to, _from, next) => {
       })
       .catch(() => {
         next({
-          name: "login",
+          name: to.name === "mobile-order-add" ? "mobile-login" : "login",
+          query: to.name === "mobile-order-add" ? { redirect: to.fullPath } : undefined,
         });
       });
   } else {

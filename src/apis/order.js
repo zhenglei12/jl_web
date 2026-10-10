@@ -2,8 +2,8 @@ import http from "../libs/http";
 
 export default {
   list: (data) => http.post("api/order/list", data),
-  statistic: () =>
-    http.post("api/order/statistics", null, {
+  statistic: (data) =>
+    http.post("api/order/statistics", data, {
       acl: "order-statistics",
     }),
   numbers: () =>

@@ -22,12 +22,12 @@ class AuthManager {
     });
   }
 
-  logout() {
+  logout(redirect = "/login") {
     return LoginApi.logout().then(() => {
       _user = null;
       AuthHandler.clearToken();
       Acl.destory();
-      router.push("/login");
+      router.push(redirect);
     });
   }
 
